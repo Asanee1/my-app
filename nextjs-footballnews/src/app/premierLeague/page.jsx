@@ -102,12 +102,6 @@ function calculateStandings(matches) {
       result: awayScore > homeScore ? "W" : awayScore < homeScore ? "L" : "D",
       date: match.utcDate,
     });
-
-    // Limit to last 5 matches
-    if (recentMatches[homeTeamName].length > 5)
-      recentMatches[homeTeamName].pop();
-    if (recentMatches[awayTeamName].length > 5)
-      recentMatches[awayTeamName].pop();
   });
 
   // Convert standings to an array and sort by points, then by goal difference
@@ -169,11 +163,9 @@ export default function PremierLeague() {
   return (
     <div>
       <Navbar />
-      <div className="container mx-auto p-4 pt-6 mt-10 font-medium">
-        <h1 className="text-2xl font-bold mb-4 text-center">
-          พรีเมียร์ลีก {season}
-        </h1>
-        <div className="mb-4 text-center">
+      
+      <div className="container mx-auto p-4 pt-2 mt-4 font-medium">
+      <div className="mb-4 text-left">
           <select
             value={season}
             onChange={(e) => setSeason(e.target.value)}
@@ -183,6 +175,24 @@ export default function PremierLeague() {
             <option value="2024">ฤดูกาล 24/25</option>
           </select>
         </div>
+        {/* Custom Header Section */}
+        <div className="relative mb-6">
+         <div className="flex items-center bg-gradient-to-r from-pink-500 to-purple-600 text-white h-12 pl-4 pr-2 rounded shadow-md">
+    {/* Container กลม ๆ รอบโลโก้ */}
+    <div className="bg-white h-10 w-10 rounded-full flex items-center justify-center shadow-lg mr-3">
+      <img
+        src="/images/pre.png"
+        alt="พรีเมียร์ลีก โลโก้"
+        className="h-6 w-6"
+      />
+    </div>
+    <span className="text-white text-3xl font-bold">พรีเมียร์ลีก</span>
+  </div>
+</div>
+
+
+        
+
         <div className="overflow-x-auto">
           <table className="table-auto w-full text-lg ml-0 border-collapse shadow-md">
             <thead>
@@ -253,18 +263,39 @@ export default function PremierLeague() {
         </div>
         {selectedInfo && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-            <div className="bg-white p-6 rounded-lg shadow-lg w-11/12 md:w-1/2">
+            <div className="bg-white p-6 rounded-lg shadow-lg w-11/12 md:w-1/2 max-h-[90vh] overflow-y-auto">
               <h2 className="text-2xl font-bold mb-4">
                 {selectedInfo.team.name} - {selectedInfo.category}
               </h2>
               <ul>
                 {selectedInfo.filteredMatches.map((match, index) => (
-                  <li key={index} className="mb-2">
+                  <li
+                    key={index}
+                    className={`mb-2 ${
+                      match.result === "W"
+                        ? "text-green-700 font-bold"
+                        : match.result === "L"
+                        ? "text-red-700 font-bold"
+                        : "text-gray-700 font-bold"
+                    }`}
+                  >
                     วันที่: {new Date(match.date).toLocaleDateString()} -{" "}
-                    {match.opponent}: {match.score} ({match.result})
+                    {match.opponent}: {match.score}{" "}
+                    <span
+                      className={`inline-block px-1 text-sm rounded ${
+                        match.result === "W"
+                          ? "bg-green-500 text-white"
+                          : match.result === "L"
+                          ? "bg-red-500 text-white"
+                          : "bg-gray-300 text-black"
+                      }`}
+                    >
+                      {match.result}
+                    </span>
                   </li>
                 ))}
               </ul>
+
               <button
                 className="mt-4 px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 transition"
                 onClick={() => setSelectedInfo(null)}

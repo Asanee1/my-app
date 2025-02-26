@@ -4,12 +4,17 @@ import Navbar from "../components/Navbar";
 
 // Function to fetch match data from API route
 async function fetchMatches(season) {
-  const response = await fetch(`http://localhost:3000/api/Ligue1?season=${season}`);
+  const response = await fetch(
+    `http://localhost:3000/api/Ligue1?season=${season}`
+  );
   if (!response.ok) {
     throw new Error("Cannot fetch data");
   }
   const data = await response.json();
-  return data.matches.filter(match => match.score.fullTime.home !== null && match.score.fullTime.away !== null); // Filter out matches without results
+  return data.matches.filter(
+    (match) =>
+      match.score.fullTime.home !== null && match.score.fullTime.away !== null
+  ); // Filter out matches without results
 }
 
 const DEFAULT_LOGO_URL = "/path/to/default/logo.png";
@@ -20,11 +25,10 @@ function calculateStandings(matches) {
   const recentMatches = {}; // To track the last 5 matches for each team
 
   matches.forEach((match) => {
-    const { homeTeam, awayTeam, score } = match;
-    const homeTeamName = homeTeam.name;
-    const awayTeamName = awayTeam.name;
-    const homeScore = score.fullTime.home;
-    const awayScore = score.fullTime.away;
+    const homeTeamName = match.homeTeam.name.replace(" FC", ""); // Remove "FC"
+    const awayTeamName = match.awayTeam.name.replace(" FC", ""); // Remove "FC"
+    const homeScore = match.score.fullTime.home;
+    const awayScore = match.score.fullTime.away;
 
     if (!standings[homeTeamName]) {
       standings[homeTeamName] = {
@@ -37,7 +41,7 @@ function calculateStandings(matches) {
         goalDifference: 0,
         points: 0,
         recentMatches: [],
-        logo: homeTeam.crest,
+        logo: match.homeTeam.crest,
       };
     }
     if (!standings[awayTeamName]) {
@@ -51,7 +55,7 @@ function calculateStandings(matches) {
         goalDifference: 0,
         points: 0,
         recentMatches: [],
-        logo: awayTeam.crest,
+        logo: match.awayTeam.crest,
       };
     }
 
@@ -90,18 +94,14 @@ function calculateStandings(matches) {
       opponent: awayTeamName,
       score: `${homeScore}-${awayScore}`,
       result: homeScore > awayScore ? "W" : homeScore < awayScore ? "L" : "D",
+      date: match.utcDate,
     });
     recentMatches[awayTeamName].unshift({
       opponent: homeTeamName,
       score: `${awayScore}-${homeScore}`,
       result: awayScore > homeScore ? "W" : awayScore < homeScore ? "L" : "D",
+      date: match.utcDate,
     });
-
-    // Limit to last 5 matches
-    if (recentMatches[homeTeamName].length > 5)
-      recentMatches[homeTeamName].pop();
-    if (recentMatches[awayTeamName].length > 5)
-      recentMatches[awayTeamName].pop();
   });
 
   // Convert standings to an array and sort by points, then by goal difference
@@ -114,9 +114,10 @@ function calculateStandings(matches) {
     .sort((a, b) => b.points - a.points || b.goalDifference - a.goalDifference);
 }
 
-export default function Ligue1LeaguePage() {
+export default function PremierLeague() {
   const [season, setSeason] = useState("2024");
   const [standings, setStandings] = useState([]);
+  const [selectedInfo, setSelectedInfo] = useState(null); // State for selected team info
 
   useEffect(() => {
     const getMatches = async () => {
@@ -128,12 +129,42 @@ export default function Ligue1LeaguePage() {
     getMatches();
   }, [season]);
 
+  // Function to handle click on a specific column
+  const handleClick = (team, category) => {
+    let filteredMatches = [];
+
+    // Filter matches based on the category clicked
+    switch (category) {
+      case "played":
+        filteredMatches = team.recentMatches; // All matches played
+        break;
+      case "won":
+        filteredMatches = team.recentMatches.filter(
+          (match) => match.result === "W"
+        ); // Matches won
+        break;
+      case "lost":
+        filteredMatches = team.recentMatches.filter(
+          (match) => match.result === "L"
+        ); // Matches lost
+        break;
+      case "drawn":
+        filteredMatches = team.recentMatches.filter(
+          (match) => match.result === "D"
+        ); // Matches drawn
+        break;
+      default:
+        break;
+    }
+
+    setSelectedInfo({ team, category, filteredMatches });
+  };
+
   return (
     <div>
       <Navbar />
-      <div className="container mx-auto p-4 pt-6 mt-10 font-medium">
-        <h1 className="text-2xl font-bold mb-4 text-center">ลีกเอิง ฝรั่งเศส {season}</h1>
-        <div className="mb-4 text-center">
+      <div className="container mx-auto p-4 pt-2 mt-4 font-medium">
+        <div className="mb-4 text-left">
           <select
             value={season}
             onChange={(e) => setSeason(e.target.value)}
@@ -143,47 +174,112 @@ export default function Ligue1LeaguePage() {
             <option value="2024">ฤดูกาล 24/25</option>
           </select>
         </div>
+        {/* Custom Header Section */}
+        <div className="relative mb-6">
+          <div className="flex items-center bg-gradient-to-r from-pink-500 to-purple-600 text-white h-12 pl-4 pr-2 rounded shadow-md">
+            <div className="bg-white h-12 w-12 rounded-full flex items-center justify-center shadow-lg mr-3">
+              <img
+                src="/images/L1.png"
+                alt="ลีกเอิง โลโก้"
+                className="h-9 w-8"
+              />
+            </div>
+
+            <span className="text-white text-3xl font-bold">ลีกเอิง</span>
+          </div>
+        </div>
+
         <div className="overflow-x-auto">
-          <table className="table-auto w-1/2 text-lg mx-auto border-collapse">
+          <table className="table-auto w-full text-lg ml-0 border-collapse shadow-md">
             <thead>
-              <tr>
-                <th className="px-2 py-1 bg-gray-100 border-b border-gray-200">อันดับ</th>
-                <th className="px-2 py-1 bg-gray-100 border-b border-gray-200">ทีม</th>
-                <th className="px-2 py-1 bg-gray-100 border-b border-gray-200">เล่น</th>
-                <th className="px-2 py-1 bg-gray-100 border-b border-gray-200">ชนะ</th>
-                <th className="px-2 py-1 bg-gray-100 border-b border-gray-200">เสมอ</th>
-                <th className="px-2 py-1 bg-gray-100 border-b border-gray-200">แพ้</th>
-                <th className="px-2 py-1 bg-gray-100 border-b border-gray-200">ได้</th>
-                <th className="px-2 py-1 bg-gray-100 border-b border-gray-200">เสีย</th>
-                <th className="px-2 py-1 bg-gray-100 border-b border-gray-200">ต่าง</th>
-                <th className="px-2 py-1 bg-gray-100 border-b border-gray-200">คะแนน</th>
+              <tr className="bg-purple-600 text-white">
+                <th className="px-4 py-3">อันดับ</th>
+                <th className="px-4 py-3">ทีม</th>
+                <th className="px-4 py-3">เล่น</th>
+                <th className="px-4 py-3">ชนะ</th>
+                <th className="px-4 py-3">เสมอ</th>
+                <th className="px-4 py-3">แพ้</th>
+                <th className="px-4 py-3">ได้</th>
+                <th className="px-4 py-3">เสีย</th>
+                <th className="px-4 py-3">ต่าง</th>
+                <th className="px-4 py-3">คะแนน</th>
               </tr>
             </thead>
             <tbody>
               {standings.map((team, index) => (
-                <tr key={team.name}>
-                  <td className="border-b border-gray-200 px-2 py-1 text-center">{index + 1}</td>
-                  <td className="border-b border-gray-200 px-2 py-1 flex items-center">
+                <tr
+                  key={team.name}
+                  className={`text-center ${
+                    index % 2 === 0 ? "bg-gray-100" : "bg-white"
+                  } hover:bg-purple-100 transition duration-150 ease-in-out`}
+                >
+                  <td className="px-4 py-2 font-semibold">{index + 1}</td>
+                  <td className="px-4 py-2 flex items-center justify-start">
                     <img
                       src={team.logo || DEFAULT_LOGO_URL}
                       alt={`${team.name} logo`}
                       className="w-7 h-7 mr-3"
                     />
-                    <span>{team.name}</span>
+                    <span className="font-semibold">{team.name}</span>
                   </td>
-                  <td className="border-b border-gray-200 px-2 py-1 text-center">{team.played}</td>
-                  <td className="border-b border-gray-200 px-2 py-1 text-center">{team.won}</td>
-                  <td className="border-b border-gray-200 px-2 py-1 text-center">{team.drawn}</td>
-                  <td className="border-b border-gray-200 px-2 py-1 text-center">{team.lost}</td>
-                  <td className="border-b border-gray-200 px-2 py-1 text-center">{team.goalsFor}</td>
-                  <td className="border-b border-gray-200 px-2 py-1 text-center">{team.goalsAgainst}</td>
-                  <td className="border-b border-gray-200 px-2 py-1 text-center">{team.goalDifference}</td>
-                  <td className="border-b border-gray-200 px-2 py-1 text-center font-bold">{team.points}</td>
+                  <td
+                    className="px-4 py-2 cursor-pointer"
+                    onClick={() => handleClick(team, "played")}
+                  >
+                    {team.played}
+                  </td>
+                  <td
+                    className="px-4 py-2 cursor-pointer"
+                    onClick={() => handleClick(team, "won")}
+                  >
+                    {team.won}
+                  </td>
+                  <td
+                    className="px-4 py-2 cursor-pointer"
+                    onClick={() => handleClick(team, "drawn")}
+                  >
+                    {team.drawn}
+                  </td>
+                  <td
+                    className="px-4 py-2 cursor-pointer"
+                    onClick={() => handleClick(team, "lost")}
+                  >
+                    {team.lost}
+                  </td>
+                  <td className="px-4 py-2">{team.goalsFor}</td>
+                  <td className="px-4 py-2">{team.goalsAgainst}</td>
+                  <td className="px-4 py-2">{team.goalDifference}</td>
+                  <td className="px-4 py-2 font-bold text-purple-600">
+                    {team.points}
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
+        {selectedInfo && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+            <div className="bg-white p-6 rounded-lg shadow-lg w-11/12 md:w-1/2 max-h-[90vh] overflow-y-auto">
+              <h2 className="text-2xl font-bold mb-4">
+                {selectedInfo.team.name} - {selectedInfo.category}
+              </h2>
+              <ul>
+                {selectedInfo.filteredMatches.map((match, index) => (
+                  <li key={index} className="mb-2">
+                    วันที่: {new Date(match.date).toLocaleDateString()} -{" "}
+                    {match.opponent}: {match.score} ({match.result})
+                  </li>
+                ))}
+              </ul>
+              <button
+                className="mt-4 px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 transition"
+                onClick={() => setSelectedInfo(null)}
+              >
+                ปิด
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

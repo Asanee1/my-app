@@ -14,7 +14,7 @@
     "cheerio": "^1.0.0",
     "date-fns": "^3.6.0",
     "mongoose": "^8.5.2",
-    "next": "14.2.5",
+    "next": "^14.2.18",
     "next-auth": "^4.24.7",
     "node-cache": "^5.1.2",
     "puppeteer": "^23.0.2",
