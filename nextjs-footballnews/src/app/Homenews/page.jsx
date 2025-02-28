@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { BiCalendar, BiUser } from "react-icons/bi";
 import Navbar from "../components/Navbar";
 import NewsList from "../news/page";
+import FootballProgramWidget from "../components/FootballProgramWidget"; // แก้ไขชื่อให้ถูก
+
 
 function Homenews() {
   const [currentBanner, setCurrentBanner] = useState(0);
@@ -85,7 +87,8 @@ function Homenews() {
           </div>
         </div>
       </div>
-
+      
+      <FootballProgramWidget />
       {/* เพิ่ม NewsList */}
       <div className="mt-8">
         <NewsList />

@@ -9,19 +9,24 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@tensorflow/tfjs": "^4.22.0",
     "axios": "^1.7.3",
     "bcryptjs": "^2.4.3",
+    "brain.js": "^2.0.0-beta.24",
     "cheerio": "^1.0.0",
     "date-fns": "^3.6.0",
+    "ml-logistic-regression": "^2.0.0",
     "mongoose": "^8.5.2",
-    "next": "^14.2.18",
+    "next": "^15.2.0",
     "next-auth": "^4.24.7",
     "node-cache": "^5.1.2",
-    "puppeteer": "^23.0.2",
+    "puppeteer": "^23.11.1",
     "react": "^18",
     "react-datepicker": "^7.3.0",
     "react-dom": "^18",
-    "react-icons": "^5.2.1"
+    "react-icons": "^5.2.1",
+    "react-query": "^3.39.3",
+    "swiper": "^11.2.4"
   },
   "devDependencies": {
     "@types/node": "22.1.0",

@@ -266,9 +266,29 @@ export default function PremierLeague() {
               </h2>
               <ul>
                 {selectedInfo.filteredMatches.map((match, index) => (
-                  <li key={index} className="mb-2">
-                    วันที่: {new Date(match.date).toLocaleDateString()} -{" "}
-                    {match.opponent}: {match.score} ({match.result})
+                  <li
+                    key={index}
+                    className={`mb-2 ${
+                      match.result === "W"
+                        ? "text-green-700 font-bold"
+                        : match.result === "L"
+                        ? "text-red-700 font-bold"
+                        : "text-gray-700 font-bold"
+                    }`}
+                  >
+                    วันที่: {new Date(match.date).toLocaleDateString("th-TH")} -{" "}
+                    {match.opponent}: {match.score}{" "}
+                    <span
+                      className={`inline-block px-1 text-sm rounded ${
+                        match.result === "W"
+                          ? "bg-green-500 text-white"
+                          : match.result === "L"
+                          ? "bg-red-500 text-white"
+                          : "bg-gray-300 text-black"
+                      }`}
+                    >
+                      {match.result}
+                    </span>
                   </li>
                 ))}
               </ul>

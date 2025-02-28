@@ -279,7 +279,7 @@ export default function PremierLeague() {
                         : "text-gray-700 font-bold"
                     }`}
                   >
-                    วันที่: {new Date(match.date).toLocaleDateString()} -{" "}
+                    วันที่: {new Date(match.date).toLocaleDateString("th-TH")} -{" "}
                     {match.opponent}: {match.score}{" "}
                     <span
                       className={`inline-block px-1 text-sm rounded ${
