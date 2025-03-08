@@ -273,25 +273,25 @@ export default function PremierLeague() {
                     <span className="font-semibold">{team.name}</span>
                   </td>
                   <td
-                    className="px-4 py-2 cursor-pointer"
+                    className="px-4 py-2 cursor-pointer hover:underline text-purple-600" // เพิ่ม hover:underline
                     onClick={() => handleClick(team, "played")}
                   >
                     {team.played}
                   </td>
                   <td
-                    className="px-4 py-2 cursor-pointer"
+                    className="px-4 py-2 cursor-pointer hover:underline text-purple-600" // เพิ่ม hover:underline
                     onClick={() => handleClick(team, "won")}
                   >
                     {team.won}
                   </td>
                   <td
-                    className="px-4 py-2 cursor-pointer"
+                    className="px-4 py-2 cursor-pointer hover:underline text-purple-600" // เพิ่ม hover:underline
                     onClick={() => handleClick(team, "drawn")}
                   >
                     {team.drawn}
                   </td>
                   <td
-                    className="px-4 py-2 cursor-pointer"
+                    className="px-4 py-2 cursor-pointer hover:underline text-purple-600" // เพิ่ม hover:underline
                     onClick={() => handleClick(team, "lost")}
                   >
                     {team.lost}

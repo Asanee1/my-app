@@ -7,6 +7,9 @@ import Footer from "../components/Footer";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { redirect } from "next/navigation";
+import InputField from "../components/InputField";
+import Button from "../components/Button";
+import { AiOutlineUser, AiOutlineMail, AiOutlineLock } from "react-icons/ai";
 
 function RegisterPage() {
   const [name, setName] = useState("");
@@ -15,6 +18,8 @@ function RegisterPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [showPassword, setShowPassword] = useState(false); // State to toggle password visibility
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const { data: session } = useSession();
   if (session) redirect("/welcome");
@@ -26,9 +31,17 @@ function RegisterPage() {
         setSuccess("");
       }, 5000); // 5 วินาที
 
-      return () => clearTimeout(timer); // เคลียร์ timer เมื่อ component ถูก unmounted หรือ error/success เปลี่ยนแปลง
+      return () => clearTimeout(timer);
     }
   }, [error, success]);
+
+  const toggleShowPassword = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const toggleShowConfirmPassword = () => {
+    setShowConfirmPassword(!showConfirmPassword);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -84,9 +97,10 @@ function RegisterPage() {
       <Navbar />
       <div className="flex-grow flex items-center justify-center bg-gray-100 py-10 font-sans text-xl">
         <div className="w-full max-w-6xl flex bg-white shadow-lg rounded-lg p-8">
-          {/* ส่วนของฟอร์ม */}
           <div className="w-full lg:w-1/2 px-8">
-            <h3 className="text-2xl font-semibold mb-4">Register Page</h3>
+            <h3 className="text-3xl font-semibold mb-6 text-indigo-700">
+              Register Page
+            </h3>
             <hr className="my-4" />
             <form onSubmit={handleSubmit}>
               {error && (
@@ -133,37 +147,67 @@ function RegisterPage() {
                 </div>
               )}
 
-              <input
+              <InputField
                 type="text"
-                onChange={(e) => setName(e.target.value)}
-                className="input input-bordered w-full mb-4 text-2xl"
                 placeholder="Enter your name"
-                required
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                error={error && !name && "Name is required"}
+                icon={<AiOutlineUser className="w-6 h-6 text-gray-400" />}
+                required={true}
               />
-              <input
+
+              <InputField
                 type="email"
-                onChange={(e) => setEmail(e.target.value)}
-                className="input input-bordered w-full mb-4 text-2xl "
                 placeholder="Enter your email"
-                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                error={error && !email && "Email is required"}
+                icon={<AiOutlineMail className="w-6 h-6 text-gray-400" />}
+                required={true}
               />
-              <input
-                type="password"
-                onChange={(e) => setPassword(e.target.value)}
-                className="input input-bordered w-full mb-4 text-2xl"
-                placeholder="Enter your password"
-                required
-              />
-              <input
-                type="password"
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className="input input-bordered w-full mb-4 text-2xl"
-                placeholder="Confirm your password"
-                required
-              />
-              <button type="submit" className="btn btn-primary w-full text-xl">
-                Sign Up
-              </button>
+
+              <div className="mb-4 relative">
+                <InputField
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  error={error && !password && "Password is required"}
+                  icon={<AiOutlineLock className="w-6 h-6 text-gray-400" />}
+                  required={true}
+                />
+                <button
+                  type="button"
+                  onClick={toggleShowPassword}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5"
+                >
+                  {showPassword ? "Hide" : "Show"}
+                </button>
+              </div>
+
+              <div className="mb-4 relative">
+                <InputField
+                  type={showConfirmPassword ? "text" : "password"}
+                  placeholder="Confirm your password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  error={
+                    error && !confirmPassword && "Confirm Password is required"
+                  }
+                  icon={<AiOutlineLock className="w-6 h-6 text-gray-400" />}
+                  required={true}
+                />
+                <button
+                  type="button"
+                  onClick={toggleShowConfirmPassword}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5"
+                >
+                  {showConfirmPassword ? "Hide" : "Show"}
+                </button>
+              </div>
+
+              <Button type="submit">Sign Up</Button>
             </form>
             <hr className="my-4" />
             <p className="text-center">
@@ -175,7 +219,6 @@ function RegisterPage() {
             </p>
           </div>
 
-          {/* ส่วนที่เพิ่มใหม่ */}
           <div className="flex-1 bg-indigo-100 text-center hidden lg:flex">
             <div
               className="m-12 xl:m-16 w-full bg-contain bg-center bg-no-repeat"

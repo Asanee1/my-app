@@ -247,8 +247,8 @@ export default function LaLigaLeague() {
           </div>
         </div>
 
-        <div className="overflow-x-auto w-full"> 
-          <table className="table-auto w-full text-sm md:text-lg ml-0 border-collapse shadow-md"> 
+        <div className="overflow-x-auto w-full">
+          <table className="table-auto w-full text-sm md:text-lg ml-0 border-collapse shadow-md">
             <thead>
               <tr className="bg-purple-600 text-white">
                 <th className="px-2 py-2 md:px-4 md:py-3">อันดับ</th>
@@ -271,43 +271,43 @@ export default function LaLigaLeague() {
                     index % 2 === 0 ? "bg-gray-100" : "bg-white"
                   } hover:bg-purple-100 transition duration-150 ease-in-out`}
                 >
-                  <td className="px-2 py-1 md:px-4 md:py-2 font-semibold">{index + 1}</td>
-                  <td className="px-2 py-1 md:px-4 md:py-2 flex items-center justify-start">
+                  <td className="px-4 py-2 font-semibold">{index + 1}</td>
+                  <td className="px-4 py-2 flex items-center justify-start">
                     <img
                       src={team.logo || DEFAULT_LOGO_URL}
                       alt={`${team.name} logo`}
-                      className="w-5 h-5 md:w-7 md:h-7 mr-2 md:mr-3"
+                      className="w-7 h-7 mr-3"
                     />
                     <span className="font-semibold">{team.name}</span>
                   </td>
                   <td
-                    className="px-2 py-1 md:px-4 md:py-2 cursor-pointer"
+                    className="px-4 py-2 cursor-pointer hover:underline text-purple-600" // เพิ่ม hover:underline
                     onClick={() => handleClick(team, "played")}
                   >
                     {team.played}
                   </td>
                   <td
-                    className="px-2 py-1 md:px-4 md:py-2 cursor-pointer"
+                    className="px-4 py-2 cursor-pointer hover:underline text-purple-600" // เพิ่ม hover:underline
                     onClick={() => handleClick(team, "won")}
                   >
                     {team.won}
                   </td>
                   <td
-                    className="px-2 py-1 md:px-4 md:py-2 cursor-pointer"
+                    className="px-4 py-2 cursor-pointer hover:underline text-purple-600" // เพิ่ม hover:underline
                     onClick={() => handleClick(team, "drawn")}
                   >
                     {team.drawn}
                   </td>
                   <td
-                    className="px-2 py-1 md:px-4 md:py-2 cursor-pointer"
+                    className="px-4 py-2 cursor-pointer hover:underline text-purple-600" // เพิ่ม hover:underline
                     onClick={() => handleClick(team, "lost")}
                   >
                     {team.lost}
                   </td>
-                  <td className="px-2 py-1 md:px-4 md:py-2">{team.goalsFor}</td>
-                  <td className="px-2 py-1 md:px-4 md:py-2">{team.goalsAgainst}</td>
-                  <td className="px-2 py-1 md:px-4 md:py-2">{team.goalDifference}</td>
-                  <td className="px-2 py-1 md:px-4 md:py-2 font-bold text-purple-600">
+                  <td className="px-4 py-2">{team.goalsFor}</td>
+                  <td className="px-4 py-2">{team.goalsAgainst}</td>
+                  <td className="px-4 py-2">{team.goalDifference}</td>
+                  <td className="px-4 py-2 font-bold text-purple-600">
                     {team.points}
                   </td>
                 </tr>

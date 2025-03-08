@@ -8,11 +8,17 @@ import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
+import InputField from "../components/InputField"; // Changed import path
+import Button from "../components/Button"; // Changed import path
+import { AiOutlineMail, AiOutlineLock } from "react-icons/ai";
+
 
 function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
 
   const router = useRouter();
   const { data: session } = useSession();
@@ -21,8 +27,21 @@ function LoginPage() {
     router.replace("welcome");
   }
 
+  const toggleShowPassword = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const handleRememberMeChange = () => {
+    setRememberMe(!rememberMe);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!email || !password) {
+      setError("Please enter both email and password.");
+      return;
+    }
 
     try {
       const res = await signIn("credentials", {
@@ -35,6 +54,15 @@ function LoginPage() {
         setError("Invalid credentials");
         return;
       }
+        
+      if (rememberMe) {
+        // Store user's email or a unique identifier in localStorage or cookies
+        // This is a simplified example. You may want to use a more secure method
+        // to store the user's identifier.
+        localStorage.setItem('rememberedUser', email);
+      } else {
+        localStorage.removeItem('rememberedUser');
+      }
 
       router.replace("welcome");
     } catch (error) {
@@ -43,93 +71,86 @@ function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 text-gray-900 flex flex-col ">
-      <Navbar />
+    <Container>
+        <Navbar />
+        <div className="flex-grow flex items-center justify-center bg-gray-100 font-sans text-gray-900 py-10">
+            <div className="w-full max-w-md bg-white shadow-lg rounded-lg overflow-hidden">
+                <div className="px-6 py-8">
+                    <div className="flex justify-center mb-6">
+                        <img src="/images/Applogo.png" className="w-24" alt="Logo" />
+                    </div>
+                    <h1 className="text-2xl font-bold text-gray-800 text-center mb-6">
+                        Welcome back!
+                    </h1>
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                        {error && (
+                            <div className="alert alert-error">
+                                <div>
+                                    <span>{error}</span>
+                                </div>
+                            </div>
+                        )}
 
-      <div className="flex-grow flex items-center justify-center font-sans">
-        <div className="w-full max-w-screen-xl bg-white shadow sm:rounded-lg flex">
-          <div className="lg:w-1/2 xl:w-5/12 p-6 sm:p-12">
-            <div className="flex justify-center">
-              <img
-                src="/images/Applogo.png"
-                className="w-32"
-                alt="Logo"
-              />
-            </div>
-            <div className="mt-12 flex flex-col items-center">
-              <h1 className="text-2xl xl:text-3xl font-extrabold">Login</h1>
-              <div className="w-full flex-1 mt-8">
-                <div className="flex flex-col items-center">
-                </div>
-                <div className="my-12 border-b text-center">
-                  <div className="leading-none px-2 inline-block text-sm text-gray-600 tracking-wide font-medium bg-white transform translate-y-1/2">
-                    sign in with e-mail
-                  </div>
-                </div>
-                <div className="mx-auto max-w-xs">
-                  <form onSubmit={handleSubmit}>
-                    {error && (
-                      <div className="alert alert-error mb-4">
-                        <div>
-                          
-                        
-                          <span>{error}</span>
+                        <InputField
+                            type="email"
+                            placeholder="Email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            icon={<AiOutlineMail className="w-6 h-6 text-gray-400" />}
+                            error={error && !email && "Email is required"}
+                            required={true}
+                        />
+
+                        <div className="relative">
+                            <InputField
+                                type={showPassword ? "text" : "password"}
+                                placeholder="Password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                icon={<AiOutlineLock className="w-6 h-6 text-gray-400" />}
+                                error={error && !password && "Password is required"}
+                                required={true}
+                            />
+                            <button
+                                type="button"
+                                onClick={toggleShowPassword}
+                                className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5"
+                            >
+                                {showPassword ? "Hide" : "Show"}
+                            </button>
                         </div>
-                      </div>
-                    )}
 
-                    <input
-                      className="w-full px-8 py-4 rounded-lg font-medium bg-gray-100 border border-gray-200 placeholder-gray-500 text-xl focus:outline-none focus:border-gray-400 focus:bg-white "
-                      type="email"
-                      placeholder="Email"
-                      onChange={(e) => setEmail(e.target.value)}
-                      value={email}
-                    />
-                    <input
-                      className="w-full px-8 py-4 rounded-lg font-medium bg-gray-100 border border-gray-200 placeholder-gray-500 text-xl focus:outline-none focus:border-gray-400 focus:bg-white mt-5"
-                      type="password"
-                      placeholder="Password"
-                      onChange={(e) => setPassword(e.target.value)}
-                      value={password}
-                    />
-                    <button
-                      type="submit"
-                      className="mt-5 tracking-wide font-semibold bg-indigo-500 text-gray-100 w-full py-4 rounded-lg hover:bg-indigo-700 transition-all duration-300 ease-in-out flex items-center justify-center focus:shadow-outline focus:outline-none"
-                    >
-                      <svg
-                        className="w-6 h-6 -ml-2"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
-                        <circle cx="8.5" cy="7" r="4" />
-                        <path d="M20 8v6M23 11h-6" />
-                      </svg>
-                      <span className="ml-3">Sign In</span>
-                    </button>
-                  </form>
-                  <p className="mt-4 text-center">Go to <Link href="/register" className='text-blue-500 hover:underline'>Register</Link> Page</p>
+                        <div className="flex items-center justify-between">
+                           <label className="inline-flex items-center cursor-pointer">
+                            <input
+                                type="checkbox"
+                                className="form-checkbox text-indigo-600"
+                                checked={rememberMe}
+                                onChange={handleRememberMeChange}
+                            />
+                            <span className="ml-2 text-sm text-gray-700">
+                                Remember me
+                            </span>
+                        </label>
+                        </div>
+
+                        <Button type="submit" className="w-full">
+                            Login
+                        </Button>
+                    </form>
+                    <div className="mt-4 text-center">
+                        <span className="text-gray-600">
+                            Don't have an account?{" "}
+                            <Link href="/register" className="text-indigo-600 hover:underline">
+                                Register
+                            </Link>
+                        </span>
+                    </div>
                 </div>
-              </div>
             </div>
-          </div>
-          <div className="flex-1 bg-indigo-100 text-center hidden lg:flex">
-            <div
-              className="m-12 xl:m-16 w-full bg-contain bg-center bg-no-repeat"
-              style={{
-                backgroundImage:
-                  "url('https://storage.googleapis.com/devitary-image-host.appspot.com/15848031292911696601-undraw_designer_life_w96d.svg')",
-              }}
-            />
-          </div>
         </div>
-      </div>
-
-      <Footer />
-    </div>
+        <Footer />
+    </Container>
   );
 }
 
