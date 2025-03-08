@@ -3,10 +3,13 @@ export default function MatchItem({ match }) {
 
   // ตรวจสอบสถานะของการแข่งขัน
   const isOngoing = match.status === 'IN_PLAY' || match.status === 'PAUSED' || match.status === 'LIVE';
-
+  const isFinished = match.status === 'FINISHED';
   // ปรับการเข้าถึงสกอร์
-  const homeScore = match.score?.fullTime?.home ?? 'N/A';
-  const awayScore = match.score?.fullTime?.away ?? 'N/A';
+  const homeScore = match.score?.fullTime?.home !== null && match.score?.fullTime?.home !== undefined ? match.score.fullTime.home : 'N/A';
+  const awayScore = match.score?.fullTime?.away !== null && match.score?.fullTime?.away !== undefined ? match.score.fullTime.away : 'N/A';
+
+  const homeTeamCrest = match.homeTeam.crest || "/default-team-logo.png";
+  const awayTeamCrest = match.awayTeam.crest || "/default-team-logo.png";
 
   return (
     <div className={`w-full p-2 bg-white shadow-md rounded-lg mb-4 ${match.status === 'FINISHED' ? 'bg-gray-100' : ''}`}>

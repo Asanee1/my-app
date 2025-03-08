@@ -19,36 +19,74 @@ export default function FootballProgramWidget() {
           .map((match) => {
             const matchDate = new Date(match.utcDate);
             const currentDate = new Date();
+            const timeDifference = Math.floor(
+              (matchDate - currentDate) / (1000 * 60 * 60 * 24)
+            );
+
             const matchHour = matchDate.getHours();
-            const timeDifference = matchDate.getDate() - currentDate.getDate();
 
             let matchDayLabel = "";
-
-            if (matchHour < 6 && timeDifference === 0) {
+            if (timeDifference === 0 && matchHour < 6) {
               matchDayLabel = "พรุ่งนี้";
             } else if (timeDifference === 0) {
               matchDayLabel = "วันนี้";
-            } else if (timeDifference === 1 || matchDate.getDate() === currentDate.getDate() + 1) {
+            } else if (timeDifference === 1) {
               matchDayLabel = "พรุ่งนี้";
+            } else {
+              matchDayLabel = matchDate.toLocaleDateString("th-TH", {
+                weekday: "short",
+                day: "numeric",
+                month: "short",
+              });
             }
+
+            // เพิ่มวันที่แบบเต็มเข้าไป
+            const fullMatchDate = matchDate.toLocaleDateString("th-TH", {
+              weekday: "short",
+              day: "numeric",
+              month: "short",
+              year: "numeric",
+            });
+
+            // เพิ่มวันที่แบบ วัน/เดือน/ปี
+            const shortMatchDate = matchDate.toLocaleDateString("th-TH", {
+              day: "numeric",
+              month: "numeric",
+              year: "numeric",
+            });
 
             return {
               ...match,
               homeTeam: {
                 ...match.homeTeam,
-                name: match.homeTeam.name.replace(/ FC| CF/g, "").trim(),
+                name: match.homeTeam.name
+                  .split(" ")
+                  .slice(0, -1)
+                  .join("")
+                  .trim(),
               },
               awayTeam: {
                 ...match.awayTeam,
-                name: match.awayTeam.name.replace(/ FC| CF/g, "").trim(),
+                name: match.awayTeam.name
+                  .split(" ")
+                  .slice(0, -1)
+                  .join("")
+                  .trim(),
               },
               localTime: matchDate.toLocaleTimeString([], {
                 hour: "2-digit",
                 minute: "2-digit",
               }),
               matchDayLabel,
+              fullMatchDate, // เพิ่มตัวแปรนี้เข้าไป
+              shortMatchDate, //เพิ่มตัวแปรนี้
+              homeTeamCrest: match.homeTeam.crest || "/default-team-logo.png",
+              awayTeamCrest: match.awayTeam.crest || "/default-team-logo.png",
+              matchDate, // ส่ง matchDate ไปด้วย
             };
-          });
+          })
+          // กรองคู่ที่แข่งจบไปแล้ว
+          .filter((match) => match.matchDate > new Date()); // เพิ่ม .filter ตรงนี้
 
         setMatches(processedMatches || []);
       } catch (error) {
@@ -78,48 +116,74 @@ export default function FootballProgramWidget() {
     return <div className="text-gray-500 text-center p-4">Loading...</div>;
 
   return (
-    <div className="relative w-full">
+    <div className="relative w-full py-10 px-4">
       {/* ปุ่มเลื่อนซ้าย */}
       <button
         onClick={handleScrollLeft}
-        className="absolute top-1/2 left-0 transform -translate-y-1/2 p-4 bg-purple-400 bg-opacity-100 hover:bg-opacity-75 text-white rounded-full shadow-md z-10"
+        className="absolute top-1/2 left-4 transform -translate-y-1/2 p-2 bg-gradient-to-r from-purple-600 to-blue-500 hover:from-blue-500 hover:to-purple-600 text-white rounded-full shadow-lg z-10 transition duration-300 ease-in-out"
       >
-        ❮
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-5 w-5"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M15 19l-7-7 7-7"
+          />
+        </svg>
       </button>
 
       {/* กล่องแสดงผล */}
-      <div ref={containerRef} className="flex space-x-8 p-4 overflow-x-auto no-scrollbar">
+      <div
+        ref={containerRef}
+        className="flex space-x-4 overflow-x-auto no-scrollbar pb-4"
+      >
         {matches.map((match) => (
           <div
             key={match.id}
-            className="p-6 bg-white shadow-md rounded-lg min-w-[400px] flex items-center space-x-8"
+            className="p-4 bg-white shadow-xl rounded-2xl min-w-[320px] flex items-center justify-between group relative transition duration-300 ease-in-out hover:scale-105"
           >
-            {/* แถวในตาราง */}
-            <div className="flex items-center w-full justify-between">
-              {/* โลโก้ทีม Home พร้อมชื่อทีม */}
-              <div className="flex flex-col items-center justify-center">
-                <img
-                  src={match.homeTeam.crest || "/default-team-logo.png"}
-                  alt={match.homeTeam.name}
-                  className="w-16 h-16"
-                />
-                <p className="text-sm font-semibold mt-2">{match.homeTeam.name}</p>
+            <div className="flex flex-col items-center w-full">
+              <div
+                className="relative w-full top-0 text-white bg-gradient-to-r from-purple-600 to-blue-500 px-2 py-1 rounded-lg text-xs font-bold z-10 shadow-md transition duration-300 ease-in-out group-hover:scale-110"
+                style={{ marginTop: "-1rem", textAlign: "center" }}
+              >
+                {match.matchDayLabel}
               </div>
 
-              {/* คำว่า วันนี้ หรือ พรุ่งนี้ และเวลา */}
-              <div className="flex flex-col items-center justify-center">
-                <p className="text-lg font-semibold text-gray-700">{match.matchDayLabel}</p>
-                <p className="text-xl font-bold text-gray-700">{match.localTime}</p>
-              </div>
-
-              {/* โลโก้ทีม Away พร้อมชื่อทีม */}
-              <div className="flex flex-col items-center justify-center">
-                <img
-                  src={match.awayTeam.crest || "/default-team-logo.png"}
-                  alt={match.awayTeam.name}
-                  className="w-16 h-16"
-                />
-                <p className="text-sm font-semibold mt-2">{match.awayTeam.name}</p>
+              <div className="flex items-center space-x-2 mt-4">
+                {/* โลโก้ทีม Home พร้อมชื่อทีม */}
+                <div className="flex flex-col items-center">
+                  <img
+                    src={match.homeTeamCrest}
+                    alt={match.homeTeam.name}
+                    className="w-16 h-16 rounded-full object-cover shadow-lg"
+                  />
+                  <p className="text-sm font-semibold mt-1 text-gray-800">
+                    {match.homeTeam.name}
+                  </p>
+                </div>
+                {/*เวลา*/}
+                <div className="flex flex-col items-center justify-center">
+                  <p className="text-xl font-bold text-gray-800">{match.localTime}</p>
+                  <p className="text-xs text-gray-600 mt-1">{match.shortMatchDate}</p>
+                </div>
+                {/* โลโก้ทีม Away พร้อมชื่อทีม */}
+                <div className="flex flex-col items-center">
+                  <img
+                    src={match.awayTeamCrest}
+                    alt={match.awayTeam.name}
+                    className="w-16 h-16 rounded-full object-cover shadow-lg"
+                  />
+                  <p className="text-sm font-semibold mt-1 text-gray-800">
+                    {match.awayTeam.name}
+                  </p>
+                </div>
               </div>
             </div>
           </div>
@@ -129,9 +193,22 @@ export default function FootballProgramWidget() {
       {/* ปุ่มเลื่อนขวา */}
       <button
         onClick={handleScrollRight}
-        className="absolute top-1/2 right-0 transform -translate-y-1/2 p-4 bg-purple-400 bg-opacity-100 hover:bg-opacity-75 text-white rounded-full shadow-md z-10"
+        className="absolute top-1/2 right-4 transform -translate-y-1/2 p-2 bg-gradient-to-r from-purple-600 to-blue-500 hover:from-blue-500 hover:to-purple-600 text-white rounded-full shadow-lg z-10 transition duration-300 ease-in-out"
       >
-        ❯
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-5 w-5"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M9 5l7 7-7 7"
+          />
+        </svg>
       </button>
     </div>
   );

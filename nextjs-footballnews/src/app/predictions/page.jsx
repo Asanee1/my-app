@@ -1,64 +1,92 @@
 "use client";
 import { useState, useEffect } from "react";
 import Navbar from "../components/Navbar";
-import { fetchUpcomingMatches, getPredictions } from "./api";
+import MatchCard from "../components/MatchCard";
 
-const PredictionsPage = () => {
+export default function PredictionsPage() {
   const [matches, setMatches] = useState([]);
-  const [predictions, setPredictions] = useState({});
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const loadMatches = async () => {
-      setLoading(true);
+    async function fetchMatches() {
       try {
-        const data = await fetchUpcomingMatches();
-        setMatches(data);
+        const res = await fetch("/api/predictions"); // Fetching from /api/predictions now
+        if (!res.ok) throw new Error("Failed to fetch matches");
+
+        const data = await res.json();
+        setMatches(data.matches); // Update: Access the matches array directly
       } catch (err) {
         setError(err.message);
-      } finally {
-        setLoading(false);
+        console.error(err);
       }
-    };
-    loadMatches();
+    }
+
+    fetchMatches();
   }, []);
 
-  const handlePredict = async (homeTeam, awayTeam) => {
-    const key = `${homeTeam} vs ${awayTeam}`;
-    if (predictions[key]) return;
-
-    setLoading(true);
-    try {
-      const result = await getPredictions(homeTeam, awayTeam);
-      setPredictions((prev) => ({ ...prev, [key]: result }));
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
+  // function for update ELO
+  async function handleUpdateElo(matchId){
+    try{
+        const res = await fetch("/api/updateElo", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({matchId}),
+          });
+          if (!res.ok) throw new Error("Failed to update ELO");
+    
+          const data = await res.json();
+          console.log(data)
+          alert('ELO updated successfully');
+    }catch(err){
+        console.error("ELO error:", err);
+        alert('ELO failed to update');
     }
-  };
+  }
 
   return (
     <div>
       <Navbar />
-      <div className="container mx-auto p-4">
-        <h1 className="text-2xl font-bold mb-4">Predictions</h1>
-        {loading && <p>Loading...</p>}
-        {error && <p>Error: {error}</p>}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {matches.map((match) => (
-            <MatchCard
-              key={match.id}
-              match={match}
-              prediction={predictions[`${match.homeTeam} vs ${match.awayTeam}`]}
-              onPredict={handlePredict}
-            />
-          ))}
-        </div>
+      <div className="w-full max-w-4xl mx-auto p-6">
+        <h1 className="text-2xl font-bold text-purple-600">Match Predictions</h1>
+
+        {error ? (
+          <div className="text-red-500 text-center p-4">{error}</div>
+        ) : matches.length === 0 ? (
+          <div className="text-gray-500 text-center p-4">Loading...</div>
+        ) : (
+          <div className="space-y-4">
+            {matches.map((match) => (
+              <div key={match.id} className="bg-white shadow rounded-lg p-4">
+                <div className="flex items-center justify-between">
+                  <div className="text-gray-800 font-medium">{match.homeTeam}</div>
+                  <div className="text-gray-500">vs</div>
+                  <div className="text-gray-800 font-medium">{match.awayTeam}</div>
+                </div>
+                <div className="text-gray-500 mt-1">{match.date}</div>
+                {match.probabilities && (
+                  <div className="mt-2">
+                    <div className="text-sm">
+                      <span className="font-semibold">
+                        {match.homeTeam} Win:
+                      </span>{" "}
+                      {match.probabilities.homeWinProbability.toFixed(2)}
+                    </div>
+                    <div className="text-sm">
+                      <span className="font-semibold">
+                        {match.awayTeam} Win:
+                      </span>{" "}
+                      {match.probabilities.awayWinProbability.toFixed(2)}
+                    </div>
+                  </div>
+                )}
+                <button onClick={() => handleUpdateElo(match.id)} className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                    Update ELO
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
-};
-
-export default PredictionsPage;
+}

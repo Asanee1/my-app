@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Navbar from "../components/Navbar";
 
 // Function to fetch match data from API route
@@ -41,6 +41,8 @@ function calculateStandings(matches) {
         goalDifference: 0,
         points: 0,
         recentMatches: [],
+        homeMatches: [], // New property for home matches
+        awayMatches: [], // New property for away matches
         logo: match.homeTeam.crest,
       };
     }
@@ -55,6 +57,8 @@ function calculateStandings(matches) {
         goalDifference: 0,
         points: 0,
         recentMatches: [],
+        homeMatches: [], // New property for home matches
+        awayMatches: [], // New property for away matches
         logo: match.awayTeam.crest,
       };
     }
@@ -86,7 +90,7 @@ function calculateStandings(matches) {
     standings[awayTeamName].goalDifference =
       standings[awayTeamName].goalsFor - standings[awayTeamName].goalsAgainst;
 
-    // Update recent matches
+    // Update recent matches and update home away matches
     if (!recentMatches[homeTeamName]) recentMatches[homeTeamName] = [];
     if (!recentMatches[awayTeamName]) recentMatches[awayTeamName] = [];
 
@@ -95,8 +99,24 @@ function calculateStandings(matches) {
       score: `${homeScore}-${awayScore}`,
       result: homeScore > awayScore ? "W" : homeScore < awayScore ? "L" : "D",
       date: match.utcDate,
+      isHome: true, // Add isHome flag
     });
     recentMatches[awayTeamName].unshift({
+      opponent: homeTeamName,
+      score: `${awayScore}-${homeScore}`,
+      result: awayScore > homeScore ? "W" : awayScore < homeScore ? "L" : "D",
+      date: match.utcDate,
+      isHome: false, // Add isHome flag
+    });
+
+    //update home away matches
+    standings[homeTeamName].homeMatches.push({
+      opponent: awayTeamName,
+      score: `${homeScore}-${awayScore}`,
+      result: homeScore > awayScore ? "W" : homeScore < awayScore ? "L" : "D",
+      date: match.utcDate,
+    });
+    standings[awayTeamName].awayMatches.push({
       opponent: homeTeamName,
       score: `${awayScore}-${homeScore}`,
       result: awayScore > homeScore ? "W" : awayScore < homeScore ? "L" : "D",
@@ -118,6 +138,8 @@ export default function PremierLeague() {
   const [season, setSeason] = useState("2024");
   const [standings, setStandings] = useState([]);
   const [selectedInfo, setSelectedInfo] = useState(null); // State for selected team info
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false); // New state for dropdown visibility
+  const dropdownRef = useRef(null); // Create a ref for the dropdown
 
   useEffect(() => {
     const getMatches = async () => {
@@ -136,22 +158,28 @@ export default function PremierLeague() {
     // Filter matches based on the category clicked
     switch (category) {
       case "played":
-        filteredMatches = team.recentMatches; // All matches played
+        filteredMatches = {
+          home: team.homeMatches,
+          away: team.awayMatches,
+        }; // All matches played
         break;
       case "won":
-        filteredMatches = team.recentMatches.filter(
-          (match) => match.result === "W"
-        ); // Matches won
+        filteredMatches = {
+          home: team.homeMatches.filter((match) => match.result === "W"),
+          away: team.awayMatches.filter((match) => match.result === "W"),
+        }; // Matches won
         break;
       case "lost":
-        filteredMatches = team.recentMatches.filter(
-          (match) => match.result === "L"
-        ); // Matches lost
+        filteredMatches = {
+          home: team.homeMatches.filter((match) => match.result === "L"),
+          away: team.awayMatches.filter((match) => match.result === "L"),
+        }; // Matches won
         break;
       case "drawn":
-        filteredMatches = team.recentMatches.filter(
-          (match) => match.result === "D"
-        ); // Matches drawn
+        filteredMatches = {
+          home: team.homeMatches.filter((match) => match.result === "D"),
+          away: team.awayMatches.filter((match) => match.result === "D"),
+        }; // Matches drawn
         break;
       default:
         break;
@@ -160,12 +188,33 @@ export default function PremierLeague() {
     setSelectedInfo({ team, category, filteredMatches });
   };
 
+  // Handle click outside to close the dropdown
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [dropdownRef]);
+
+  const toggleDropdown = () => {
+    setIsDropdownOpen(!isDropdownOpen);
+  };
+
+  const handleSeasonChange = (selectedSeason) => {
+    setSeason(selectedSeason);
+    setIsDropdownOpen(false);
+  };
   return (
     <div>
       <Navbar />
-      
+
       <div className="container mx-auto p-4 pt-2 mt-4 font-medium">
-      <div className="mb-4 text-left">
+        <div className="mb-4 text-left">
           <select
             value={season}
             onChange={(e) => setSeason(e.target.value)}
@@ -177,21 +226,18 @@ export default function PremierLeague() {
         </div>
         {/* Custom Header Section */}
         <div className="relative mb-6">
-         <div className="flex items-center bg-gradient-to-r from-pink-500 to-purple-600 text-white h-12 pl-4 pr-2 rounded shadow-md">
-    {/* Container กลม ๆ รอบโลโก้ */}
-    <div className="bg-white h-10 w-10 rounded-full flex items-center justify-center shadow-lg mr-3">
-      <img
-        src="/images/pre.png"
-        alt="พรีเมียร์ลีก โลโก้"
-        className="h-6 w-6"
-      />
-    </div>
-    <span className="text-white text-3xl font-bold">พรีเมียร์ลีก</span>
-  </div>
-</div>
-
-
-        
+          <div className="flex items-center bg-gradient-to-r from-pink-500 to-purple-600 text-white h-12 pl-4 pr-2 rounded shadow-md">
+            {/* Container กลม ๆ รอบโลโก้ */}
+            <div className="bg-white h-10 w-10 rounded-full flex items-center justify-center shadow-lg mr-3">
+              <img
+                src="/images/pre.png"
+                alt="พรีเมียร์ลีก โลโก้"
+                className="h-6 w-6"
+              />
+            </div>
+            <span className="text-white text-3xl font-bold">พรีเมียร์ลีก</span>
+          </div>
+        </div>
 
         <div className="overflow-x-auto">
           <table className="table-auto w-full text-lg ml-0 border-collapse shadow-md">
@@ -262,46 +308,116 @@ export default function PremierLeague() {
           </table>
         </div>
         {selectedInfo && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-            <div className="bg-white p-6 rounded-lg shadow-lg w-11/12 md:w-1/2 max-h-[90vh] overflow-y-auto">
-              <h2 className="text-2xl font-bold mb-4">
+          <div className="fixed inset-0 bg-black bg-opacity-40 flex items-start justify-center z-50 pt-20">
+            <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-4xl md:w-11/12 lg:w-3/4 max-h-[90vh] overflow-y-auto transform transition-all duration-300 ease-in-out scale-95 hover:scale-100">
+              <h2 className="text-3xl font-semibold text-center mb-6 text-purple-600">
                 {selectedInfo.team.name} - {selectedInfo.category}
               </h2>
-              <ul>
-                {selectedInfo.filteredMatches.map((match, index) => (
-                  <li
-                    key={index}
-                    className={`mb-2 ${
-                      match.result === "W"
-                        ? "text-green-700 font-bold"
-                        : match.result === "L"
-                        ? "text-red-700 font-bold"
-                        : "text-gray-700 font-bold"
-                    }`}
-                  >
-                    วันที่: {new Date(match.date).toLocaleDateString("th-TH")} -{" "}
-                    {match.opponent}: {match.score}{" "}
-                    <span
-                      className={`inline-block px-1 text-sm rounded ${
-                        match.result === "W"
-                          ? "bg-green-500 text-white"
-                          : match.result === "L"
-                          ? "bg-red-500 text-white"
-                          : "bg-gray-300 text-black"
-                      }`}
-                    >
-                      {match.result}
-                    </span>
-                  </li>
-                ))}
-              </ul>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Home Matches */}
+                {selectedInfo.filteredMatches.home.length > 0 && (
+                  <div>
+                    <h3 className="text-xl font-semibold text-center text-purple-600 mb-4">
+                      🏠 Home Matches
+                    </h3>
+                    <ul className="space-y-3">
+                      {[...selectedInfo.filteredMatches.home]
+                        .sort((a, b) => new Date(b.date) - new Date(a.date))
+                        .map((match, index) => (
+                          <li
+                            key={index}
+                            className={`p-4 border-2 rounded-lg shadow-md bg-gray-50 flex justify-between items-center ${
+                              match.result === "W"
+                                ? "border-green-500 text-green-700"
+                                : match.result === "L"
+                                ? "border-red-500 text-red-700"
+                                : "border-gray-300 text-gray-700"
+                            }`}
+                          >
+                            <span className="text-lg font-medium">
+                              {new Date(match.date).toLocaleDateString("th-TH")}
+                            </span>
+                            <span className="flex items-center gap-2 text-lg font-medium">
+                              {match.opponent}: {match.score}{" "}
+                              <span
+                                className={`inline-block px-2 py-1 text-xs font-semibold rounded-md ${
+                                  match.result === "W"
+                                    ? "bg-green-500 text-white"
+                                    : match.result === "L"
+                                    ? "bg-red-500 text-white"
+                                    : "bg-gray-300 text-black"
+                                }`}
+                              >
+                                {match.result}
+                              </span>
+                            </span>
+                          </li>
+                        ))}
+                    </ul>
+                  </div>
+                )}
 
-              <button
-                className="mt-4 px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 transition"
-                onClick={() => setSelectedInfo(null)}
-              >
-                ปิด
-              </button>
+                {/* Away Matches */}
+                {selectedInfo.filteredMatches.away.length > 0 && (
+                  <div>
+                    <h3 className="text-xl font-semibold text-center text-purple-600 mb-4">
+                      ✈️ Away Matches
+                    </h3>
+                    <ul className="space-y-3">
+                      {[...selectedInfo.filteredMatches.away]
+                        .sort((a, b) => new Date(b.date) - new Date(a.date))
+                        .map((match, index) => (
+                          <li
+                            key={index}
+                            className={`p-4 border-2 rounded-lg shadow-md bg-gray-50 flex justify-between items-center ${
+                              match.result === "W"
+                                ? "border-green-500 text-green-700"
+                                : match.result === "L"
+                                ? "border-red-500 text-red-700"
+                                : "border-gray-300 text-gray-700"
+                            }`}
+                          >
+                            <span className="text-lg font-medium">
+                              {new Date(match.date).toLocaleDateString("th-TH")}
+                            </span>
+                            <span className="flex items-center gap-2 text-lg font-medium">
+                              {match.opponent}: {match.score}{" "}
+                              <span
+                                className={`inline-block px-2 py-1 text-xs font-semibold rounded-md ${
+                                  match.result === "W"
+                                    ? "bg-green-500 text-white"
+                                    : match.result === "L"
+                                    ? "bg-red-500 text-white"
+                                    : "bg-gray-300 text-black"
+                                }`}
+                              >
+                                {match.result}
+                              </span>
+                            </span>
+                          </li>
+                        ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+
+              {/* No Matches Message */}
+              {selectedInfo.filteredMatches.home.length === 0 &&
+                selectedInfo.filteredMatches.away.length === 0 && (
+                  <p className="text-center text-gray-500 text-lg">
+                    No matches found
+                  </p>
+                )}
+
+              {/* Close Button */}
+              <div className="flex justify-center mt-6">
+                <button
+                  className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-all duration-200 text-xl"
+                  onClick={() => setSelectedInfo(null)}
+                >
+                  ปิด
+                </button>
+              </div>
             </div>
           </div>
         )}

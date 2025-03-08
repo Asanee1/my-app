@@ -1,14 +1,14 @@
 import mongoose from 'mongoose';
 
 const matchSchema = new mongoose.Schema({
-  matchId: { type: String, required: true, unique: true },
+  matchId: { type: String, required: true, unique: true, index: true }, // เพิ่ม index
   homeTeam: {
     name: { type: String, required: true },
-    crestUrl: { type: String } // เพิ่มโลโก้
+    crestUrl: { type: String }
   },
   awayTeam: {
     name: { type: String, required: true },
-    crestUrl: { type: String } // เพิ่มโลโก้
+    crestUrl: { type: String }
   },
   score: {
     fullTime: {
@@ -16,7 +16,7 @@ const matchSchema = new mongoose.Schema({
       away: Number
     }
   },
-  date: { type: Date, required: true }
+  date: { type: Date, required: true, index: true } // เพิ่ม index
 });
 
 const Match = mongoose.models.Match || mongoose.model('Match', matchSchema);
