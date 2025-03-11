@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import Link from "next/link"; 
+import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
 import Container from "../components/Container";
@@ -13,10 +13,10 @@ export default function NewsDetail() {
   const newsId = searchParams.get("newsId");
 
   const [newsDetail, setNewsDetail] = useState(null);
-  const [newsList, setNewsList] = useState([]); 
+  const [newsList, setNewsList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [articleContent, setArticleContent] = useState(null); 
+  const [articleContent, setArticleContent] = useState(null);
 
   useEffect(() => {
     const fetchNews = async () => {
@@ -25,9 +25,11 @@ export default function NewsDetail() {
         if (!response.ok) throw new Error("Failed to fetch news.");
         const data = await response.json();
 
-        setNewsList(data); 
+        setNewsList(data);
 
-        const selectedNews = data.find((item) => item.title.replace(/\s/g, "") === newsId);
+        const selectedNews = data.find(
+          (item) => item.title.replace(/\s/g, "") === newsId
+        );
         if (selectedNews) {
           setNewsDetail(selectedNews);
         } else {
@@ -46,7 +48,9 @@ export default function NewsDetail() {
   useEffect(() => {
     const fetchArticleContent = async (articleUrl) => {
       try {
-        const response = await fetch(`/api/get-article-content?url=${encodeURIComponent(articleUrl)}`);
+        const response = await fetch(
+          `/api/get-article-content?url=${encodeURIComponent(articleUrl)}`
+        );
         if (!response.ok) throw new Error("Failed to fetch article content.");
         const data = await response.json();
         if (data.content) {
@@ -122,11 +126,21 @@ export default function NewsDetail() {
               className="w-full max-h-[500px] object-cover rounded-lg shadow-md"
             />
           )}
-          <p className="text-gray-600 mt-6 text-lg leading-relaxed">{newsDetail.description}</p>
+          <p className="text-gray-600 mt-6 text-lg leading-relaxed">
+            {newsDetail.description}
+          </p>
           {/* เพิ่มการเว้นระยะระหว่างรายละเอียดของข่าว */}
           <div className="mt-4 text-gray-500 text-lg">
-            <p>Source: <span className="font-semibold">{newsDetail.source.name}</span></p>
-            <p>Author: <span className="font-semibold">{newsDetail.author ? newsDetail.author : "Unknown"}</span></p>
+            <p>
+              Source:{" "}
+              <span className="font-semibold">{newsDetail.source.name}</span>
+            </p>
+            <p>
+              Author:{" "}
+              <span className="font-semibold">
+                {newsDetail.author ? newsDetail.author : "Unknown"}
+              </span>
+            </p>
           </div>
 
           {/* ✅ แสดงเนื้อหาข่าว */}
@@ -135,7 +149,9 @@ export default function NewsDetail() {
               {articleContent}
             </div>
           ) : (
-            <p className="text-gray-500 mt-4 text-lg">กำลังโหลดเนื้อหาข่าว...</p>
+            <p className="text-gray-500 mt-4 text-lg">
+              กำลังโหลดเนื้อหาข่าว...
+            </p>
           )}
         </div>
 
@@ -148,7 +164,12 @@ export default function NewsDetail() {
                 .filter((item) => item.title !== newsDetail.title) // ✅ ไม่แสดงข่าวที่กำลังอ่าน
                 .slice(0, 5)
                 .map((item, index) => (
-                  <Link key={index} href={`/news?newsId=${encodeURIComponent(item.title.replace(/\s/g, ""))}`}>
+                  <Link
+                    key={index}
+                    href={`/news?newsId=${encodeURIComponent(
+                      item.title.replace(/\s/g, "")
+                    )}`}
+                  >
                     <div className="flex items-center gap-4 cursor-pointer hover:bg-gray-300 p-4 rounded-lg transition-all">
                       <img
                         src={item.urlToImage || "/path/to/placeholder.jpg"}
@@ -156,8 +177,12 @@ export default function NewsDetail() {
                         className="w-28 h-28 object-cover rounded-md shadow-sm"
                       />
                       <div className="flex-1">
-                        <h3 className="text-lg font-bold line-clamp-2 text-gray-900">{item.title}</h3>
-                        <p className="text-sm text-gray-500">{item.source.name}</p>
+                        <h3 className="text-lg font-bold line-clamp-2 text-gray-900">
+                          {item.title}
+                        </h3>
+                        <p className="text-sm text-gray-500">
+                          {item.source.name}
+                        </p>
                       </div>
                     </div>
                   </Link>

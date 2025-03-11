@@ -2,9 +2,10 @@
 import React, { useEffect, useState } from "react";
 import { BiCalendar, BiUser } from "react-icons/bi";
 import Navbar from "../components/Navbar";
-import NewsList from "../news/list/page"; 
+import NewsList from "../news/list/page";
 import FootballProgramWidget from "../components/FootballProgramWidget";
-import Link from "next/link"; // Import Link
+import Link from "next/link";
+import Footer from "../components/Footer"; // Import Footer
 
 function Homenews() {
   const [currentBanner, setCurrentBanner] = useState(0);
@@ -12,7 +13,7 @@ function Homenews() {
     {
       title:
         "ใครจะคว้าแชมป์ สเปน ปะทะ อังกฤษ ปิดฉาก ยูโร 2024 ทรูวิชั่นส์ ยิงสด",
-      subtitle: "FOOTBALL EURO 2024", // ข้อความที่ต้องการเปลี่ยน
+      subtitle: "FOOTBALL EURO 2024",
       date: "15 July 2024",
       author: "NO NAME",
       image: "/images/banner2.jpg",
@@ -21,7 +22,7 @@ function Homenews() {
     {
       title:
         "คมกริบ! มาซาทาดะ อิชิอิ โค้ชใหญ่บอลไทยสาดวาทะเด็ด หลังลูกทีมเรียงหน้าถล่ม ติมอร์-เลสเต ยับเยิน",
-      subtitle: "ชิงแชมป์อาเซียน 2024  ", // ข้อความที่ต้องการเปลี่ยน
+      subtitle: "ชิงแชมป์อาเซียน 2024  ",
       date: "9 December 2024",
       author: "Sports football",
       image: "/images/banner3.jpg",
@@ -30,7 +31,7 @@ function Homenews() {
     {
       title:
         "เชลซี ยิงแซงชนะ สเปอร์ส คาเล้า 4-3 ไล่บี้ ลิเวอร์พูล แค่ 4 แต้ม",
-      subtitle: "Premier League", // ข้อความที่ต้องการเปลี่ยน
+      subtitle: "Premier League",
       date: "9 December 2024",
       author: "siamrath",
       image: "/images/banner4.jpg",
@@ -41,7 +42,7 @@ function Homenews() {
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentBanner((prevBanner) => (prevBanner + 1) % news.length);
-    }, 5000); // Change banner every 5 seconds
+    }, 5000);
 
     return () => clearInterval(interval);
   }, [news.length]);
@@ -55,15 +56,12 @@ function Homenews() {
           backgroundImage: `url(${news[currentBanner].image})`,
         }}
       >
-        {/* black overlay */}
         <div className="absolute top-0 left-0 right-0 bottom-0 bg-[rgba(0,0,0,0.68)]"></div>
         <div className="relative z-[10] flex items-center h-[100%] text-white">
           <div className="w-[80%] mx-auto grid items-center grid-cols-1 lg:grid-cols-2 gap-[2rem]">
-            {/* text content */}
             <div>
               <p className="sm:px-8 px-4 py-1 mb-[1rem] text-[24px] sm:text-[24px] bg-purple-600 text-white w-fit uppercase">
                 {news[currentBanner].subtitle}
-                {/* ใช้ค่า subtitle ที่เปลี่ยนแปลง */}
               </p>
               <h1 className="text-[25px] sm:text-[32px] md:text-[38px] lg:text-[45px] text-white leading-[2rem] md:leading-[3.5rem] font-medium">
                 {news[currentBanner].title}
@@ -103,10 +101,11 @@ function Homenews() {
       </div>
 
       <FootballProgramWidget />
-      {/* เพิ่ม NewsList */}
-      <div className="mt-8">
+      {/* Modified NewsList */}
+      <div> 
         <NewsList />
       </div>
+      <Footer />
     </div>
   );
 }

@@ -1,19 +1,20 @@
-"use client"; // This MUST be at the top!
+"use client";
 import { useEffect, useState } from "react";
-import Link from "next/link"; // Ensure Link is imported
+import Link from "next/link";
+import { useInView } from "react-intersection-observer";
 
 export default function NewsList() {
   const [news, setNews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { ref, inView } = useInView({ threshold: 0.1, triggerOnce: false });
 
   useEffect(() => {
     const fetchNews = async () => {
       try {
-        const response = await fetch("/api/news"); // Fetch data from your API
+        const response = await fetch("/api/news");
         if (response.ok) {
           const data = await response.json();
-          console.log(data); // Add here
           setNews(data);
         } else {
           setError("Failed to fetch news");
@@ -24,54 +25,88 @@ export default function NewsList() {
         setLoading(false);
       }
     };
-
     fetchNews();
   }, []);
 
-  if (loading) return <p>กำลังโหลด...</p>;
-  if (error) return <p>{error}</p>;
+  if (loading) return <p className="text-center text-lg py-10">กำลังโหลด...</p>;
+  if (error) return <p className="text-center text-red-500 py-10">{error}</p>;
+
+  const featuredNews = news[0];
+  const otherNews = news.slice(1);
 
   return (
-    <div className="p-8 bg-gray-100">
-      <h1 className="text-3xl font-semibold mb-6">ข่าวสารกีฬา</h1>
-      {news.length === 0 ? (
-        <p>ไม่มีข้อมูลข่าวสาร</p>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {news.map((item, index) => (
-            <Link
-              href={`/news?newsId=${encodeURIComponent(
-                item.title.replace(/\s/g, "")
-              )}`} // Change here
-              key={index}
-              legacyBehavior
-              passHref
-            >
-              <a className="bg-white shadow-md rounded-lg p-4 group transition-transform duration-300 ease-in-out hover:scale-105 block">
-                <div className="overflow-hidden mb-4">
+    <div
+      ref={ref}
+      className={`px-6 pt-6 md:px-10 md:pt-8 transition-all duration-1000 ${
+        inView ? "animate-fade-in-up" : "opacity-0 translate-y-10"
+      }`}
+    >
+      <div className="bg-white shadow-xl rounded-lg p-8">
+      <h1 className="text-4xl font-semibold mb-8 text-left text-black">ข่าวล่าสุด</h1>
+        {news.length === 0 ? (
+          <p className="text-center text-lg">ไม่มีข้อมูลข่าวสาร</p>
+        ) : (
+          <div>
+            {/* Featured News */}
+            {featuredNews && (
+              <Link
+                href={`/news?newsId=${encodeURIComponent(
+                  featuredNews.title.replace(/\s/g, "")
+                )}`}
+                passHref
+                legacyBehavior
+              >
+                <a className="flex flex-col md:flex-row gap-6 mb-10 p-5 border-b border-gray-200 hover:bg-gray-50 transition duration-300 rounded-lg">
                   <img
-                    src={item.urlToImage || "/path/to/placeholder.jpg"}
-                    alt={item.title || "ข่าวกีฬา"}
-                    className="w-full h-70 object-cover rounded-lg transition-transform duration-300 group-hover:scale-105"
+                    src={featuredNews.urlToImage || "/placeholder.jpg"}
+                    alt={featuredNews.title}
+                    className="w-full md:w-1/2 h-80 object-cover rounded-lg shadow-md"
                   />
-                </div>
-                <h2 className="text-xl font-bold mb-2 line-clamp-2 group-hover:text-purple-600 transition-colors duration-300">
-                  {item.title || "ไม่มีหัวข้อข่าว"}
-                </h2>
-                <p className="text-gray-600 text-sm mb-2 line-clamp-2">
-                  {item.description || "ไม่มีรายละเอียดเพิ่มเติม"}
-                </p>
-                <p className="text-gray-700 text-sm">
-                  ผู้เขียน: {item.author || "ไม่ระบุ"}
-                </p>
-                <p className="text-gray-500 text-sm mt-1">
-                  แหล่งที่มา: {item.source.name || "ไม่ระบุ"}
-                </p>
-              </a>
-            </Link>
-          ))}
-        </div>
-      )}
+                  <div className="md:w-1/2 flex flex-col justify-center">
+                    <h2 className="text-3xl font-bold mb-3 hover:text-purple-600 transition-colors line-clamp-3">
+                      {featuredNews.title}
+                    </h2>
+                    <p className="text-gray-600 text-lg mb-3 line-clamp-3">
+                      {featuredNews.description}
+                    </p>
+                    <p className="text-gray-500 text-base">
+                      📅 {featuredNews.source.name || "ไม่ระบุ"} • {featuredNews.author || "ไม่ระบุ"}
+                    </p>
+                  </div>
+                </a>
+              </Link>
+            )}
+
+            {/* Other News */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-5">
+              {otherNews.map((item, index) => (
+                <Link
+                  href={`/news?newsId=${encodeURIComponent(
+                    item.title.replace(/\s/g, "")
+                  )}`}
+                  key={index}
+                  passHref
+                  legacyBehavior
+                >
+                  <a className="bg-gray-100 rounded-lg p-5 shadow-sm hover:shadow-lg hover:scale-[1.02] transition-transform duration-300">
+                    <img
+                      src={item.urlToImage || "/placeholder.jpg"}
+                      alt={item.title}
+                      className="w-full h-48 object-cover rounded-md mb-3 shadow"
+                    />
+                    <h3 className="text-lg font-bold line-clamp-2 hover:text-purple-600 transition-colors">
+                      {item.title}
+                    </h3>
+                    <p className="text-sm text-gray-500 mt-1">
+                      {item.source.name || "ไม่ระบุ"} • {item.author || "ไม่ระบุ"}
+                    </p>
+                  </a>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

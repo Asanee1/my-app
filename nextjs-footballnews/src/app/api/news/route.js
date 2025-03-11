@@ -8,7 +8,7 @@ export async function GET(req) {
   const urlObj = new URL(req.url);
   const source = urlObj.searchParams.get('source');
   const apiKey = "d3fb4bea105847568e9ef073a1ddc12a"; // Replace with your actual API key
-  const pageSize = 20; // Reduced page size to 20
+  const pageSize = 30; // Reduced page size to 20
   let url = `https://newsapi.org/v2/everything?q=ฟุตบอล OR พรีเมียร์ลีก OR ยูฟ่า OR ลาลีกา OR บุนเดสลีกา OR ลีกเอิง OR ไทยลีก&language=th&pageSize=${pageSize}&apiKey=${apiKey}`;
 
   if (source) {

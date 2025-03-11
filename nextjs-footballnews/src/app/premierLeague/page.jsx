@@ -2,11 +2,13 @@
 import React, { useState, useEffect, useRef } from "react";
 import Navbar from "../components/Navbar";
 
-// Function to fetch match data from API route
+const BASE_URL =
+  typeof window !== "undefined" && window.location.hostname === "192.168.1.149"
+    ? "http://192.168.1.149:3000"
+    : "http://localhost:3000";
+
 async function fetchMatches(season) {
-  const response = await fetch(
-    `http://localhost:3000/api/premierLeague?season=${season}`
-  );
+  const response = await fetch(`${BASE_URL}/api/premierLeague?season=${season}`);
   if (!response.ok) {
     throw new Error("Cannot fetch data");
   }
@@ -242,16 +244,16 @@ export default function PremierLeague() {
         <div className="overflow-x-auto">
           <table className="table-auto w-full text-lg ml-0 border-collapse shadow-md">
             <thead>
-              <tr className="bg-purple-600 text-white">
+            <tr className="bg-purple-600 text-white">
                 <th className="px-4 py-3">อันดับ</th>
                 <th className="px-4 py-3">ทีม</th>
-                <th className="px-4 py-3">เล่น</th>
-                <th className="px-4 py-3">ชนะ</th>
-                <th className="px-4 py-3">เสมอ</th>
-                <th className="px-4 py-3">แพ้</th>
-                <th className="px-4 py-3">ได้</th>
-                <th className="px-4 py-3">เสีย</th>
-                <th className="px-4 py-3">ต่าง</th>
+                <th className="px-4 py-3 hidden sm:table-cell">เล่น</th> 
+                <th className="px-4 py-3 hidden md:table-cell">ชนะ</th> 
+                <th className="px-4 py-3 hidden md:table-cell">เสมอ</th> 
+                <th className="px-4 py-3 hidden md:table-cell">แพ้</th> 
+                <th className="px-4 py-3 hidden lg:table-cell">ได้</th> 
+                <th className="px-4 py-3 hidden lg:table-cell">เสีย</th> 
+                <th className="px-4 py-3 hidden lg:table-cell">ต่าง</th> 
                 <th className="px-4 py-3">คะแนน</th>
               </tr>
             </thead>
@@ -273,32 +275,32 @@ export default function PremierLeague() {
                     <span className="font-semibold">{team.name}</span>
                   </td>
                   <td
-                    className="px-4 py-2 cursor-pointer hover:underline text-purple-600" // เพิ่ม hover:underline
+                    className="px-4 py-2 cursor-pointer hover:underline text-purple-600 hidden sm:table-cell" // 4. Hide based on screen size
                     onClick={() => handleClick(team, "played")}
                   >
                     {team.played}
                   </td>
                   <td
-                    className="px-4 py-2 cursor-pointer hover:underline text-purple-600" // เพิ่ม hover:underline
+                    className="px-4 py-2 cursor-pointer hover:underline text-purple-600 hidden md:table-cell"
                     onClick={() => handleClick(team, "won")}
                   >
                     {team.won}
                   </td>
                   <td
-                    className="px-4 py-2 cursor-pointer hover:underline text-purple-600" // เพิ่ม hover:underline
+                    className="px-4 py-2 cursor-pointer hover:underline text-purple-600 hidden md:table-cell"
                     onClick={() => handleClick(team, "drawn")}
                   >
                     {team.drawn}
                   </td>
                   <td
-                    className="px-4 py-2 cursor-pointer hover:underline text-purple-600" // เพิ่ม hover:underline
+                    className="px-4 py-2 cursor-pointer hover:underline text-purple-600 hidden md:table-cell"
                     onClick={() => handleClick(team, "lost")}
                   >
                     {team.lost}
                   </td>
-                  <td className="px-4 py-2">{team.goalsFor}</td>
-                  <td className="px-4 py-2">{team.goalsAgainst}</td>
-                  <td className="px-4 py-2">{team.goalDifference}</td>
+                  <td className="px-4 py-2 hidden lg:table-cell">{team.goalsFor}</td> 
+                  <td className="px-4 py-2 hidden lg:table-cell">{team.goalsAgainst}</td> 
+                  <td className="px-4 py-2 hidden lg:table-cell">{team.goalDifference}</td> 
                   <td className="px-4 py-2 font-bold text-purple-600">
                     {team.points}
                   </td>

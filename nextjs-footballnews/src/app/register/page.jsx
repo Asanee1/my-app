@@ -10,6 +10,7 @@ import { redirect } from "next/navigation";
 import InputField from "../components/InputField";
 import Button from "../components/Button";
 import { AiOutlineUser, AiOutlineMail, AiOutlineLock } from "react-icons/ai";
+import { motion } from "framer-motion"; // Import motion
 
 function RegisterPage() {
   const [name, setName] = useState("");
@@ -18,7 +19,7 @@ function RegisterPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const [showPassword, setShowPassword] = useState(false); // State to toggle password visibility
+  const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const { data: session } = useSession();
@@ -29,7 +30,7 @@ function RegisterPage() {
       const timer = setTimeout(() => {
         setError("");
         setSuccess("");
-      }, 5000); // 5 วินาที
+      }, 5000);
 
       return () => clearTimeout(timer);
     }
@@ -95,55 +96,38 @@ function RegisterPage() {
   return (
     <Container>
       <Navbar />
-      <div className="flex-grow flex items-center justify-center bg-gray-100 py-10 font-sans text-xl">
-        <div className="w-full max-w-6xl flex bg-white shadow-lg rounded-lg p-8">
-          <div className="w-full lg:w-1/2 px-8">
-            <h3 className="text-3xl font-semibold mb-6 text-indigo-700">
-              Register Page
-            </h3>
+      <motion.div
+        className="flex-grow flex items-center justify-center bg-gray-100 py-10 font-sans text-xl"
+        initial={{ opacity: 0, y: 50 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <motion.div
+          className="w-full max-w-6xl flex bg-white shadow-2xl rounded-lg overflow-hidden"
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
+          <div className="w-full lg:w-1/2 px-8 py-8">
+            <motion.h3
+              className="text-3xl font-bold text-purple-700 mb-6"
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+            >
+              REGISTER
+            </motion.h3>
             <hr className="my-4" />
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} className="space-y-6">
               {error && (
-                <div className="alert alert-error shadow-lg mb-4">
-                  <div>
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="w-6 h-6"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M11 13l2-2m0 0l2 2m-2-2v6m-1-6a1 1 0 10-2 0m2 0a1 1 0 11-2 0m2 0a1 1 0 10-2 0m2 0a1 1 0 11-2 0M6 21H4a1 1 0 01-1-1V4a1 1 0 011-1h2m14 18h-2a1 1 0 01-1-1V4a1 1 0 011-1h2m-2 16h2a1 1 0 001-1V6a1 1 0 00-1-1h-2m0 0h-2m2 0V4a1 1 0 00-1-1h-2m2 0H5M4 4h2m0 0V4h-2M4 4V2M4 4h-2m2 0v2M5 4h2M5 4V2M5 4h-2m0 0v2M6 21h2m0 0v-2m0 2h2m0-2h2m0 2h2m-2 0h2m0-2v-2m0 2h2m0-2v-2m0 2h2m0 0v2m0 2h2m0 0v2m0 2h2"
-                      />
-                    </svg>
-                    <span>{error}</span>
-                  </div>
+                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
+                  {error}
                 </div>
               )}
 
               {success && (
-                <div className="alert alert-success shadow-lg mb-4">
-                  <div>
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="w-6 h-6"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
-                    <span>{success}</span>
-                  </div>
+                <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4">
+                  {success}
                 </div>
               )}
 
@@ -167,7 +151,7 @@ function RegisterPage() {
                 required={true}
               />
 
-              <div className="mb-4 relative">
+              <div className="relative">
                 <InputField
                   type={showPassword ? "text" : "password"}
                   placeholder="Enter your password"
@@ -180,13 +164,13 @@ function RegisterPage() {
                 <button
                   type="button"
                   onClick={toggleShowPassword}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5 text-purple-600 hover:text-purple-800"
                 >
                   {showPassword ? "Hide" : "Show"}
                 </button>
               </div>
 
-              <div className="mb-4 relative">
+              <div className="relative">
                 <InputField
                   type={showConfirmPassword ? "text" : "password"}
                   placeholder="Confirm your password"
@@ -201,18 +185,25 @@ function RegisterPage() {
                 <button
                   type="button"
                   onClick={toggleShowConfirmPassword}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5 text-purple-600 hover:text-purple-800"
                 >
                   {showConfirmPassword ? "Hide" : "Show"}
                 </button>
               </div>
 
-              <Button type="submit">Sign Up</Button>
+              <motion.button
+                type="submit"
+                className="bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-800 hover:to-purple-600 text-white rounded-md px-4 py-2 mt-4 w-full transition-all duration-300 disabled:opacity-50 flex items-center justify-center"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Sign Up
+              </motion.button>
             </form>
             <hr className="my-4" />
             <p className="text-center">
               Go to{" "}
-              <Link href="/login" className="text-blue-500 hover:underline">
+              <Link href="/login" className="text-purple-600 hover:underline">
                 Login
               </Link>{" "}
               Page
@@ -220,16 +211,19 @@ function RegisterPage() {
           </div>
 
           <div className="flex-1 bg-indigo-100 text-center hidden lg:flex">
-            <div
+            <motion.div
               className="m-12 xl:m-16 w-full bg-contain bg-center bg-no-repeat"
               style={{
                 backgroundImage:
                   "url('https://storage.googleapis.com/devitary-image-host.appspot.com/15848031292911696601-undraw_designer_life_w96d.svg')",
               }}
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5, delay: 0.6 }}
             />
           </div>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
       <Footer />
     </Container>
   );
