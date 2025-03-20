@@ -8,7 +8,9 @@ const BASE_URL =
     : "http://localhost:3000";
 
 async function fetchMatches(season) {
-  const response = await fetch(`${BASE_URL}/api/premierLeague?season=${season}`);
+  const response = await fetch(
+    `${BASE_URL}/api/premierLeague?season=${season}`
+  );
   if (!response.ok) {
     throw new Error("Cannot fetch data");
   }
@@ -244,16 +246,16 @@ export default function PremierLeague() {
         <div className="overflow-x-auto">
           <table className="table-auto w-full text-lg ml-0 border-collapse shadow-md">
             <thead>
-            <tr className="bg-purple-600 text-white">
+              <tr className="bg-purple-600 text-white">
                 <th className="px-4 py-3">อันดับ</th>
                 <th className="px-4 py-3">ทีม</th>
-                <th className="px-4 py-3 hidden sm:table-cell">เล่น</th> 
-                <th className="px-4 py-3 hidden md:table-cell">ชนะ</th> 
-                <th className="px-4 py-3 hidden md:table-cell">เสมอ</th> 
-                <th className="px-4 py-3 hidden md:table-cell">แพ้</th> 
-                <th className="px-4 py-3 hidden lg:table-cell">ได้</th> 
-                <th className="px-4 py-3 hidden lg:table-cell">เสีย</th> 
-                <th className="px-4 py-3 hidden lg:table-cell">ต่าง</th> 
+                <th className="px-4 py-3 hidden sm:table-cell">เล่น</th>
+                <th className="px-4 py-3 hidden md:table-cell">ชนะ</th>
+                <th className="px-4 py-3 hidden md:table-cell">เสมอ</th>
+                <th className="px-4 py-3 hidden md:table-cell">แพ้</th>
+                <th className="px-4 py-3 hidden lg:table-cell">ได้</th>
+                <th className="px-4 py-3 hidden lg:table-cell">เสีย</th>
+                <th className="px-4 py-3 hidden lg:table-cell">ต่าง</th>
                 <th className="px-4 py-3">คะแนน</th>
               </tr>
             </thead>
@@ -298,9 +300,15 @@ export default function PremierLeague() {
                   >
                     {team.lost}
                   </td>
-                  <td className="px-4 py-2 hidden lg:table-cell">{team.goalsFor}</td> 
-                  <td className="px-4 py-2 hidden lg:table-cell">{team.goalsAgainst}</td> 
-                  <td className="px-4 py-2 hidden lg:table-cell">{team.goalDifference}</td> 
+                  <td className="px-4 py-2 hidden lg:table-cell">
+                    {team.goalsFor}
+                  </td>
+                  <td className="px-4 py-2 hidden lg:table-cell">
+                    {team.goalsAgainst}
+                  </td>
+                  <td className="px-4 py-2 hidden lg:table-cell">
+                    {team.goalDifference}
+                  </td>
                   <td className="px-4 py-2 font-bold text-purple-600">
                     {team.points}
                   </td>
@@ -337,8 +345,15 @@ export default function PremierLeague() {
                             }`}
                           >
                             <span className="text-lg font-medium">
-                              {new Date(match.date).toLocaleDateString("th-TH")}
+                              {new Date(match.date)
+                                .toLocaleDateString("en-GB", {
+                                  day: "numeric",
+                                  month: "short",
+                                  year: "numeric",
+                                })
+                                .replace("Jun", "jun")}
                             </span>
+
                             <span className="flex items-center gap-2 text-lg font-medium">
                               {match.opponent}: {match.score}{" "}
                               <span
@@ -380,8 +395,15 @@ export default function PremierLeague() {
                             }`}
                           >
                             <span className="text-lg font-medium">
-                              {new Date(match.date).toLocaleDateString("th-TH")}
+                              {new Date(match.date)
+                                .toLocaleDateString("en-GB", {
+                                  day: "numeric",
+                                  month: "short",
+                                  year: "numeric",
+                                })
+                                .replace("Jun", "jun")}
                             </span>
+
                             <span className="flex items-center gap-2 text-lg font-medium">
                               {match.opponent}: {match.score}{" "}
                               <span

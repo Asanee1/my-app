@@ -49,6 +49,15 @@ export default function LiveScorePage() {
     return Object.values(leagueMap);
   };
 
+  const formattedSelectedDate = useMemo(() => {
+    return new Date(selectedDate).toLocaleDateString("th-TH", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  }, [selectedDate]);
+
   return (
     <div>
       <Navbar />
@@ -69,6 +78,10 @@ export default function LiveScorePage() {
           <div className="text-gray-500 text-center p-4">Loading...</div>
         ) : error ? (
           <div className="text-red-500 text-center p-4">Error: {error}</div>
+        ) : leagues.length === 0 ? (
+          <div className="text-gray-500 text-center p-4">
+            ไม่มีแมตช์แข่งขันใน{formattedSelectedDate}
+          </div>
         ) : (
           leagues.map((league) => (
             <div

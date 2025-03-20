@@ -7,7 +7,7 @@ export default function NewsList() {
   const [news, setNews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const { ref, inView } = useInView({ threshold: 0.1, triggerOnce: false });
+  
 
   useEffect(() => {
     const fetchNews = async () => {
@@ -36,10 +36,8 @@ export default function NewsList() {
 
   return (
     <div
-      ref={ref}
-      className={`px-6 pt-6 md:px-10 md:pt-8 transition-all duration-1000 ${
-        inView ? "animate-fade-in-up" : "opacity-0 translate-y-10"
-      }`}
+      
+      
     >
       <div className="bg-white shadow-xl rounded-lg p-8">
       <h1 className="text-4xl font-semibold mb-8 text-left text-black">ข่าวล่าสุด</h1>

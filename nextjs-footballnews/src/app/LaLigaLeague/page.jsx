@@ -343,7 +343,13 @@ export default function LaLigaLeague() {
                             }`}
                           >
                             <span className="text-lg font-medium">
-                              {new Date(match.date).toLocaleDateString("th-TH")}
+                              {new Date(match.date)
+                                .toLocaleDateString("en-GB", {
+                                  day: "numeric",
+                                  month: "short",
+                                  year: "numeric",
+                                })
+                                .replace("Jun", "jun")}
                             </span>
                             <span className="flex items-center gap-2 text-lg font-medium">
                               {match.opponent}: {match.score}{" "}
@@ -386,7 +392,13 @@ export default function LaLigaLeague() {
                             }`}
                           >
                             <span className="text-lg font-medium">
-                              {new Date(match.date).toLocaleDateString("th-TH")}
+                              {new Date(match.date)
+                                .toLocaleDateString("en-GB", {
+                                  day: "numeric",
+                                  month: "short",
+                                  year: "numeric",
+                                })
+                                .replace("Jun", "jun")}
                             </span>
                             <span className="flex items-center gap-2 text-lg font-medium">
                               {match.opponent}: {match.score}{" "}

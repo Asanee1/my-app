@@ -31,7 +31,7 @@ export async function GET(req) {
     const matches = response.data.matches;
     
     // Process and filter matches that will occur in the future
-    const processedMatches = matches.map((match) => {
+    let processedMatches = matches.map((match) => {
       // ... your existing match processing logic ...
       const matchDate = new Date(match.utcDate);
             const currentDate = new Date();
@@ -100,7 +100,10 @@ export async function GET(req) {
               awayTeamCrest: match.awayTeam.crest || "/default-team-logo.png",
               matchDate, // ส่ง matchDate ไปด้วย
             };
-    }).filter((match) => match.matchDate > new Date());
+    });
+    if (!date) {
+        processedMatches = processedMatches.filter((match) => match.matchDate > new Date());
+    }
 
     // Cache the result
     footballCache[cacheKey] = {
